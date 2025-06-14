@@ -4,6 +4,7 @@ from models import db, Product, User, ChatSession, ChatLog, Users, Address, Orde
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdb.db'
@@ -394,5 +395,7 @@ def get_order_details(user_id, order_id):
         return jsonify({'error': 'Failed to fetch order details'}), 500
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=8000)
+    # Use environment variables with fallback values
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
 
