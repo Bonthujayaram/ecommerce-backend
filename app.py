@@ -314,16 +314,13 @@ def get_user_orders(user_id):
         
     try:
         # First get the user profile to get the correct ID type
-        user = Users.query.filter_by(id=user_id).first()
+        user = Users.query.filter_by(user_id=int(user_id)).first()
         if not user:
-            # If UUID not found, try with integer user_id
-            user = Users.query.filter_by(user_id=int(user_id)).first()
-            if not user:
-                return jsonify({'error': 'User not found'}), 404
+            return jsonify({'error': 'User not found'}), 404
         
         # Now fetch orders using the integer user_id
-        orders = Orders.query.filter_by(user_id=str(user.user_id)).order_by(Orders.order_date.desc()).all()
-        print(f"Found {len(orders)} orders for user_id {user.user_id}")  # Debug log
+        orders = Orders.query.filter_by(user_id=int(user_id)).order_by(Orders.order_date.desc()).all()
+        print(f"Found {len(orders)} orders for user_id {user_id}")  # Debug log
         
         order_list = []
         for order in orders:
@@ -348,6 +345,9 @@ def get_user_orders(user_id):
             
         print(f"Returning {len(order_list)} orders")  # Debug log
         return jsonify(order_list)
+    except ValueError as e:
+        print(f"Value Error in get_user_orders: {str(e)}")
+        return jsonify({'error': 'Invalid user ID format'}), 400
     except Exception as e:
         print(f"Error fetching orders: {str(e)}")
         return jsonify({'error': 'Failed to fetch orders'}), 500
