@@ -154,6 +154,61 @@ PRODUCTS = [
         "brand": "Manduka"
     },
     {
+        "id": 45,
+        "name": "Kettlebell 20kg",
+        "category": "Sports",
+        "price": 79.99,
+        "description": "Cast iron kettlebell",
+        "image_url": "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?w=400&h=400&fit=crop",
+        "rating": 4.6,
+        "stock_quantity": 40,
+        "brand": "CAP Barbell"
+    },
+    {
+        "id": 46,
+        "name": "Tennis Racket Pro",
+        "category": "Sports",
+        "price": 149.99,
+        "description": "Professional tennis racket",
+        "image_url": "https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&w=400&h=400&fit=crop",
+        "rating": 4.7,
+        "stock_quantity": 35,
+        "brand": "Wilson"
+    },
+    {
+        "id": 47,
+        "name": "Soccer Ball FIFA",
+        "category": "Sports",
+        "price": 29.99,
+        "description": "FIFA approved soccer ball",
+        "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
+        "rating": 4.5,
+        "stock_quantity": 65,
+        "brand": "Adidas"
+    },
+    {
+        "id": 48,
+        "name": "Running Shoes Trail",
+        "category": "Sports",
+        "price": 119.99,
+        "description": "Trail running shoes",
+        "image_url": "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&h=400&fit=crop",
+        "rating": 4.6,
+        "stock_quantity": 55,
+        "brand": "Salomon"
+    },
+    {
+        "id": 49,
+        "name": "Skateboard Complete",
+        "category": "Sports",
+        "price": 89.99,
+        "description": "Complete skateboard setup",
+        "image_url": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=400&fit=crop",
+        "rating": 4.4,
+        "stock_quantity": 30,
+        "brand": "Element"
+    },
+    {
         "id": 51,
         "name": "Espresso Machine",
         "category": "Home",
@@ -174,6 +229,50 @@ PRODUCTS = [
         "rating": 4.6,
         "stock_quantity": 50,
         "brand": "Vitamix"
+    },
+    {
+        "id": 53,
+        "name": "4-Slice Toaster",
+        "category": "Home",
+        "price": 89.99,
+        "description": "Stainless steel toaster",
+        "image_url": "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=400&h=400&fit=crop",
+        "rating": 4.4,
+        "stock_quantity": 65,
+        "brand": "Cuisinart"
+    },
+    {
+        "id": 54,
+        "name": "Kitchen Utensil Set",
+        "category": "Home",
+        "price": 49.99,
+        "description": "Complete cooking utensil set",
+        "image_url": "https://th.bing.com/th/id/OIP.NqG26TKi6ax1ak5UVhVWIwHaHa?w=190&h=190&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+        "rating": 4.5,
+        "stock_quantity": 80,
+        "brand": "OXO"
+    },
+    {
+        "id": 57,
+        "name": "Chef Knife Set",
+        "category": "Home",
+        "price": 129.99,
+        "description": "Professional kitchen knife set",
+        "image_url": "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&h=400&fit=crop",
+        "rating": 4.8,
+        "stock_quantity": 55,
+        "brand": "Wusthof"
+    },
+    {
+        "id": 60,
+        "name": "Stand Mixer",
+        "category": "Home",
+        "price": 349.99,
+        "description": "Professional stand mixer",
+        "image_url": "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400&h=400&fit=crop",
+        "rating": 4.9,
+        "stock_quantity": 25,
+        "brand": "KitchenAid"
     },
     {
         "id": 61,
@@ -218,6 +317,17 @@ PRODUCTS = [
         "rating": 4.6,
         "stock_quantity": 80,
         "brand": "Nike"
+    },
+    {
+        "id": 65,
+        "name": "Casual Oxford Shoes",
+        "category": "Fashion",
+        "price": 149.99,
+        "description": "Classic brown leather oxfords",
+        "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
+        "rating": 4.5,
+        "stock_quantity": 50,
+        "brand": "Cole Haan"
     },
     {
         "id": 71,
@@ -295,17 +405,6 @@ PRODUCTS = [
         "rating": 4.8,
         "stock_quantity": 120,
         "brand": "Harper Lee"
-    },
-    {
-        "id": 93,
-        "name": "1984 by George Orwell",
-        "category": "Books",
-        "price": 14.99,
-        "description": "Dystopian fiction masterpiece",
-        "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-        "rating": 4.7,
-        "stock_quantity": 200,
-        "brand": "Signet Classics"
     },
     {
         "id": 100,
