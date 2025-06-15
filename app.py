@@ -16,6 +16,13 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
+# Validate required environment variables
+required_env_vars = ['DATABASE_URL', 'SECRET_KEY', 'FLASK_ENV']
+missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+if missing_vars:
+    logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+    raise RuntimeError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
 app = Flask(__name__)
 
 # Database Configuration
@@ -45,14 +52,16 @@ app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production
 if os.environ.get('FLASK_ENV') == 'production':
     CORS(app, 
          supports_credentials=True, 
-         origins=[os.environ.get('FRONTEND_URL', 'https://eco-ai-asst.netlify.app')],
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
-    logger.info("Configured CORS for production")
+         origins=['https://eco-ai-asst.netlify.app'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'])
+    logger.info("Configured CORS for production with origin: https://eco-ai-asst.netlify.app")
 else:
     CORS(app, 
          supports_credentials=True,
-         origins=['http://localhost:5173', 'http://127.0.0.1:5173'],  # Vite's default development port
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+         origins=['http://localhost:5173', 'http://127.0.0.1:5173'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'])
     logger.info("Configured CORS for development")
 
 # Initialize the database with the app
@@ -69,14 +78,19 @@ with app.app_context():
         logger.info("Database connection verified successfully")
 
         # Check if products need to be seeded
-        if Product.query.count() == 0:
+        product_count = Product.query.count()
+        logger.info(f"Found {product_count} existing products in database")
+        
+        if product_count == 0:
             from seed_data import PRODUCTS
-            logger.info("Seeding products...")
+            logger.info(f"Seeding {len(PRODUCTS)} products...")
             for product_data in PRODUCTS:
                 product = Product(**product_data)
                 db.session.add(product)
             db.session.commit()
             logger.info(f"Successfully seeded {len(PRODUCTS)} products")
+        else:
+            logger.info("Database already contains products, skipping seeding")
 
     except Exception as e:
         logger.error(f"Database initialization error: {str(e)}")
@@ -191,8 +205,15 @@ def save_chatlog():
 
 @app.route('/products', methods=['GET'])
 def get_products():
-    products = Product.query.all()
-    return jsonify([p.to_dict() for p in products])
+    try:
+        products = Product.query.all()
+        logger.info(f"Found {len(products)} products in database")
+        result = [p.to_dict() for p in products]
+        logger.info(f"Returning {len(result)} products")
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error fetching products: {str(e)}")
+        return jsonify({'error': 'Failed to fetch products'}), 500
 
 @app.route('/product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -214,7 +235,7 @@ def search_products():
 
 @app.route('/products/category/<category>')
 def get_products_by_category(category):
-    products = Product.query.filter(Product.category.ilike(category)).all()
+    products = Product.query.filter(Product.category.ilike(f'%{category}%')).all()
     return jsonify([p.to_dict() for p in products])
 
 @app.route('/')
