@@ -3,6 +3,7 @@ from flask_cors import CORS
 from models import db, Product, User, ChatSession, ChatLog, Users, Address, Orders, OrderItems
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import text
 import uuid
 import os
 from dotenv import load_dotenv
@@ -61,7 +62,7 @@ with app.app_context():
         logger.info("Database tables created successfully")
         
         # Verify database connection
-        db.session.execute('SELECT 1')
+        db.session.execute(text('SELECT 1'))
         logger.info("Database connection verified successfully")
     except Exception as e:
         logger.error(f"Database initialization error: {str(e)}")
