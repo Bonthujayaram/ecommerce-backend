@@ -3,27 +3,84 @@ from flask_cors import CORS
 from models import db, Product, User, ChatSession, ChatLog, Users, Address, Orders, OrderItems
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import text
 import uuid
 import os
+from dotenv import load_dotenv
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdb.db'
+
+# Database Configuration
+if os.environ.get('DATABASE_URL'):
+    # Use PostgreSQL in production
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    logger.info("Using PostgreSQL database")
+else:
+    # Use SQLite in development
+    db_path = os.path.join(app.instance_path, 'yourdb.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    logger.info("Using SQLite database")
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True,
     'pool_recycle': 300,
 }
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_secret_key')
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = False
-CORS(app, supports_credentials=True)
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'
+
+# Configure CORS based on environment
+if os.environ.get('FLASK_ENV') == 'production':
+    CORS(app, 
+         supports_credentials=True, 
+         origins=[os.environ.get('FRONTEND_URL', 'https://eco-ai-asst.netlify.app')],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+    logger.info("Configured CORS for production")
+else:
+    CORS(app, 
+         supports_credentials=True,
+         origins=['http://localhost:5173', 'http://127.0.0.1:5173'],  # Vite's default development port
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+    logger.info("Configured CORS for development")
 
 # Initialize the database with the app
 db.init_app(app)
 
 # Create tables if they don't exist
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        logger.info("Database tables created successfully")
+        
+        # Verify database connection
+        db.session.execute(text('SELECT 1'))
+        logger.info("Database connection verified successfully")
+
+        # Check if products need to be seeded
+        if Product.query.count() == 0:
+            from seed_data import PRODUCTS
+            logger.info("Seeding products...")
+            for product_data in PRODUCTS:
+                product = Product(**product_data)
+                db.session.add(product)
+            db.session.commit()
+            logger.info(f"Successfully seeded {len(PRODUCTS)} products")
+
+    except Exception as e:
+        logger.error(f"Database initialization error: {str(e)}")
+        raise
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -313,13 +370,13 @@ def get_user_orders(user_id):
         
     try:
         # First get the user profile to get the correct ID type
-            user = Users.query.filter_by(user_id=int(user_id)).first()
-            if not user:
-                return jsonify({'error': 'User not found'}), 404
+        user = Users.query.filter_by(user_id=int(user_id)).first()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
         
         # Now fetch orders using the integer user_id
         orders = Orders.query.filter_by(user_id=int(user_id)).order_by(Orders.order_date.desc()).all()
-        print(f"Found {len(orders)} orders for user_id {user_id}")  # Debug log
+        logger.info(f"Found {len(orders)} orders for user_id {user_id}")
         
         order_list = []
         for order in orders:
@@ -339,16 +396,16 @@ def get_user_orders(user_id):
                     'price': float(item.price)
                 } for item in order.order_items]
             }
-            print(f"Processing order: {order_dict}")  # Debug log
+            logger.info(f"Processing order: {order_dict}")
             order_list.append(order_dict)
             
-        print(f"Returning {len(order_list)} orders")  # Debug log
+        logger.info(f"Returning {len(order_list)} orders")
         return jsonify(order_list)
     except ValueError as e:
-        print(f"Value Error in get_user_orders: {str(e)}")
+        logger.error(f"Value Error in get_user_orders: {str(e)}")
         return jsonify({'error': 'Invalid user ID format'}), 400
     except Exception as e:
-        print(f"Error fetching orders: {str(e)}")
+        logger.error(f"Error fetching orders: {str(e)}")
         return jsonify({'error': 'Failed to fetch orders'}), 500
 
 @app.route('/users/<user_id>/orders/<order_id>', methods=['GET'])

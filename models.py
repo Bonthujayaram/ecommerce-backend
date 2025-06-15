@@ -1,18 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
+import uuid
 
 db = SQLAlchemy()
 
 class User(db.Model, UserMixin):
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)  # hashed
+    password = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = "product"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(120), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     price = db.Column(db.Float, nullable=False)
@@ -41,6 +44,7 @@ class Product(db.Model):
         }
 
 class ChatSession(db.Model):
+    __tablename__ = "chat_session"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -48,19 +52,20 @@ class ChatSession(db.Model):
     user = db.relationship('User', backref=db.backref('chat_sessions', lazy=True))
 
 class ChatLog(db.Model):
+    __tablename__ = "chat_log"
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, db.ForeignKey('chat_session.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    sender = db.Column(db.String(20), nullable=False)  # 'user' or 'bot'
+    sender = db.Column(db.String(20), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     session = db.relationship('ChatSession', backref=db.backref('messages', lazy=True))
     user = db.relationship('User')
 
 class Users(db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.String(36), primary_key=True)  # UUID as string
-    user_id = db.Column(db.Integer, unique=True)  # Link to user table if needed
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.Integer, unique=True)
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
     gender = db.Column(db.String(10))
@@ -72,7 +77,7 @@ class Users(db.Model):
 class Address(db.Model):
     __tablename__ = 'addresses'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     label = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
@@ -83,15 +88,14 @@ class Address(db.Model):
 class Orders(db.Model):
     __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, nullable=False)  # Changed from String to Integer
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
-    payment_method = db.Column(db.String(10), nullable=False)  # 'UPI' or 'QR'
+    payment_method = db.Column(db.String(10), nullable=False)
     payment_details = db.Column(db.Text, nullable=True)
-    status = db.Column(db.String(20), nullable=False)  # 'PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'
+    status = db.Column(db.String(20), nullable=False)
     order_date = db.Column(db.DateTime, default=datetime.utcnow)
     address_id = db.Column(db.Integer, db.ForeignKey('addresses.id'), nullable=False)
     
-    # Relationships
     address = db.relationship('Address', backref=db.backref('orders', lazy=True))
     order_items = db.relationship('OrderItems', backref='order', lazy=True, cascade='all, delete-orphan')
 
