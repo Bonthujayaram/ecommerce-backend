@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, signup, getUserProfile, updateUserProfile, createUserProfile } from '../controllers/userController';
+import { login, signup, getUserProfile, updateUserProfile, createUserProfile, resetPassword } from '../controllers/userController';
 import { getUserAddresses, createAddress, updateAddress, deleteAddress } from '../controllers/addressController';
 import { getUserOrders, getOrderDetails } from '../controllers/orderController';
 import { auth } from '../middleware/auth';
@@ -9,6 +9,7 @@ const router = express.Router();
 // Public routes
 router.post('/login', login);
 router.post('/signup', signup);
+router.post('/reset-password', resetPassword);
 
 // Protected routes
 router.get('/:id', auth, getUserProfile);
