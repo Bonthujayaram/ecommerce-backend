@@ -244,14 +244,14 @@ export const signup = async (req: Request, res: Response) => {
 
     connection = await pool.getConnection();
 
-    // Check if user already exists
+    // Check if user already exists (by email or username)
     const [existingUsers] = await connection.query<any[]>(
-      'SELECT id FROM users WHERE email = ?',
-      [email]
+      'SELECT id FROM users WHERE email = ? OR username = ?',
+      [email, username]
     );
 
     if (existingUsers.length > 0) {
-      return res.status(400).json({ error: 'Email already registered' });
+      return res.status(409).json({ error: 'A user with this email or username already exists' });
     }
 
     // Hash password
