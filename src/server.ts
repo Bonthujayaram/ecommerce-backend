@@ -43,9 +43,9 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-app.use('/api/products', productRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/products', productRoutes);
+app.use('/users', userRoutes);
+app.use('/orders', orderRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
