@@ -291,4 +291,54 @@ export const signup = async (req: Request, res: Response) => {
       connection.release();
     }
   }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  let connection;
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    // Input validation
+    if (!email || !newPassword || !confirmPassword) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'Passwords do not match' });
+    }
+
+    connection = await pool.getConnection();
+
+    // Check if user exists
+    const [users] = await connection.query<any[]>(
+      'SELECT id FROM users WHERE email = ?',
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the password
+    await connection.execute<ResultSetHeader>(
+      'UPDATE users SET password = ? WHERE email = ?',
+      [hashedPassword, email]
+    );
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
 }; 
