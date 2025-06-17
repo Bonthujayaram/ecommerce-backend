@@ -1,29 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
 import orderRoutes from './routes/orderRoutes';
+import reviewRoutes from './routes/reviewRoutes';
 
-// Load environment variables
-dotenv.config({ path: path.join(process.cwd(), '.env') });
-
-// Debug: Log environment variables (remove in production)
-console.log('Server Environment:', {
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: process.env.DB_PORT,
-  DB_USER: process.env.DB_USER,
-  DB_NAME: process.env.DB_NAME
-});
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5002;
 
 // CORS configuration
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176','https://eco-ai-asst.netlify.app'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'];
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -43,9 +32,10 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-app.use('/products', productRoutes);
-app.use('/users', userRoutes);
-app.use('/orders', orderRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
