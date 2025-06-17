@@ -11,7 +11,7 @@ const app = express();
 const port = process.env.PORT || 5002;
 
 // CORS configuration
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176','https://eco-ai-asst.netlify.app'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'];
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -31,9 +31,9 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-app.use('/api/products', productRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/products', productRoutes);
+app.use('/users', userRoutes);
+app.use('/orders', orderRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
