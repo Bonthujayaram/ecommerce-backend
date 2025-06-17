@@ -1,3 +1,6 @@
+backend
+
+schema.sql
 CREATE TABLE IF NOT EXISTS product (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -45,4 +48,32 @@ CREATE TABLE IF NOT EXISTS order_items (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (order_id) REFERENCES orders(id),
   FOREIGN KEY (product_id) REFERENCES product(id)
+);
+
+-- Create reviews table for product reviews and ratings
+CREATE TABLE IF NOT EXISTS reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL,
+  product_id INT NOT NULL,
+  rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  helpful_votes INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user_product (user_id, product_id)
+);
+
+-- Create review_likes table for helpful votes
+CREATE TABLE IF NOT EXISTS review_likes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  review_id INT NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+  is_helpful BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user_review (user_id, review_id)
 ); 
+
