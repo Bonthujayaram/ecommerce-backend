@@ -1,4 +1,4 @@
-import { db } from '../config/database';
+import db from '../config/database';
 
 export interface Review {
   id?: number;
@@ -26,7 +26,13 @@ export class ReviewModel {
     );
     
     const reviewId = (result as any).insertId;
-    return this.findById(reviewId);
+    const createdReview = await this.findById(reviewId);
+    
+    if (!createdReview) {
+      throw new Error('Failed to create review');
+    }
+    
+    return createdReview;
   }
 
   static async findById(id: number): Promise<Review | null> {
