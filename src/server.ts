@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
 import orderRoutes from './routes/orderRoutes';
-import reviewRoutes from './routes/reviewRoutes';
 
 dotenv.config();
 
@@ -35,7 +34,6 @@ app.use(express.json());
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/reviews', reviewRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
